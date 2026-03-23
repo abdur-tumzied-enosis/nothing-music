@@ -4,7 +4,15 @@ import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
 import { Inter_400Regular, Inter_500Medium } from '@expo-google-fonts/inter';
+import TrackPlayer from 'react-native-track-player';
+import { PlaybackService } from '@/services/playbackService';
 import { useLibraryStore } from '@/store/libraryStore';
+import * as audioService from '@/services/audioService';
+
+// Module-level registration — runs synchronously before any component mounts.
+// Must happen here (not inside a component) so RNTP's headless task is
+// registered before the OS could invoke it.
+TrackPlayer.registerPlaybackService(() => PlaybackService);
 
 // Prevent splash from auto-hiding until fonts are ready
 SplashScreen.preventAutoHideAsync();
@@ -22,6 +30,7 @@ export default function RootLayout() {
     if (fontsLoaded) {
       SplashScreen.hideAsync();
       loadPersistedLibrary();
+      audioService.setup();
     }
   }, [fontsLoaded]);
 

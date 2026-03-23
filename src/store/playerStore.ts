@@ -36,9 +36,9 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 
   play: (track, queue) => {
     const q = queue ?? [track];
-    const idx = queue ? Math.max(0, queue.findIndex((t) => t.id === track.id)) : 0;
+    const idx = Math.max(0, q.findIndex((t) => t.id === track.id));
     set({ currentTrack: track, queue: q, queueIndex: idx, isPlaying: true, position: 0, duration: 0 });
-    audioService.loadAndPlay(track.uri);
+    audioService.loadQueue(track, q);
   },
 
   pause: () => {
@@ -57,15 +57,13 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   },
 
   skipNext: () => {
+    // Optimistic update for immediate UI response; event confirms it
     const { queue, queueIndex, repeat } = get();
     if (!queue.length) return;
     const nextIndex =
-      repeat === 'all'
-        ? (queueIndex + 1) % queue.length
-        : Math.min(queueIndex + 1, queue.length - 1);
-    const nextTrack = queue[nextIndex];
-    set({ queueIndex: nextIndex, currentTrack: nextTrack, position: 0, duration: 0, isPlaying: true });
-    audioService.loadAndPlay(nextTrack.uri);
+      repeat === 'all' ? (queueIndex + 1) % queue.length : Math.min(queueIndex + 1, queue.length - 1);
+    set({ currentTrack: queue[nextIndex], queueIndex: nextIndex, position: 0, duration: 0, isPlaying: true });
+    audioService.skipNext();
   },
 
   skipPrev: () => {
@@ -73,43 +71,23 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     if (!queue.length) return;
     if (position > 3000) {
       set({ position: 0 });
-      audioService.seek(0);
-      return;
+    } else {
+      const prevIndex = Math.max(queueIndex - 1, 0);
+      set({ currentTrack: queue[prevIndex], queueIndex: prevIndex, position: 0, duration: 0, isPlaying: true });
     }
-    const prevIndex = Math.max(queueIndex - 1, 0);
-    const prevTrack = queue[prevIndex];
-    set({ queueIndex: prevIndex, currentTrack: prevTrack, position: 0, duration: 0, isPlaying: true });
-    audioService.loadAndPlay(prevTrack.uri);
+    audioService.skipPrev(position);
   },
 
   toggleShuffle: () => set((s) => ({ shuffle: !s.shuffle })),
 
-  cycleRepeat: () =>
-    set((s) => ({
-      repeat: s.repeat === 'none' ? 'all' : s.repeat === 'all' ? 'one' : 'none',
-    })),
+  cycleRepeat: () => {
+    const next =
+      get().repeat === 'none' ? 'all' : get().repeat === 'all' ? 'one' : 'none';
+    set({ repeat: next });
+    audioService.setRepeatMode(next);
+  },
 
   setPosition: (ms) => set({ position: ms }),
 
   setDuration: (ms) => set({ duration: ms }),
 }));
-
-// Wire audio status updates back to the store after creation
-audioService.setStatusCallback(({ positionMillis, durationMillis, didJustFinish }) => {
-  const store = usePlayerStore.getState();
-  store.setPosition(positionMillis);
-  if (durationMillis !== undefined) store.setDuration(durationMillis);
-
-  if (didJustFinish) {
-    const { repeat, queue, queueIndex, currentTrack } = usePlayerStore.getState();
-    if (repeat === 'one' && currentTrack) {
-      usePlayerStore.getState().setPosition(0);
-      audioService.loadAndPlay(currentTrack.uri);
-    } else if (queueIndex < queue.length - 1 || repeat === 'all') {
-      usePlayerStore.getState().skipNext();
-    } else {
-      // End of queue, no repeat — stop playback
-      usePlayerStore.setState({ isPlaying: false, position: 0 });
-    }
-  }
-});

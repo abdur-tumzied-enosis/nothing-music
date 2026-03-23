@@ -41,10 +41,6 @@
     "plugins": [
       "expo-router",
       [
-        "expo-av",
-        { "microphonePermission": false }
-      ],
-      [
         "expo-media-library",
         {
           "photosPermission": false,
@@ -63,9 +59,9 @@
         }
       ]
     ],
+    "newArchEnabled": false,
     "experiments": {
-      "typedRoutes": true,
-      "reactCompiler": true
+      "typedRoutes": true
     },
     "extra": {
       "router": {},
