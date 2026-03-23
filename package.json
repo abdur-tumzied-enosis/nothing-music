@@ -3,15 +3,16 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
+    "postinstall": "patch-package",
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "develop-build":"npx eas build --platform android --profile development",
-    "preview-build":"npx eas build --platform android --profile preview",
-    "production-build":"npx eas build --platform android --profile production"
+    "develop-build": "npx eas build --platform android --profile development",
+    "preview-build": "npx eas build --platform android --profile preview",
+    "production-build": "npx eas build --platform android --profile production"
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.4.2",
@@ -50,6 +51,7 @@
   },
   "devDependencies": {
     "@types/react": "~19.2.2",
+    "patch-package": "^8.0.1",
     "typescript": "~5.9.2"
   },
   "private": true
