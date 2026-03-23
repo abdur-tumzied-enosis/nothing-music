@@ -7,9 +7,6 @@
     "icon": "./assets/images/icon.png",
     "scheme": "nmusic",
     "userInterfaceStyle": "automatic",
-    "ios": {
-      "icon": "./assets/expo.icon"
-    },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
@@ -25,8 +22,17 @@
         "android.permission.ACCESS_MEDIA_LOCATION",
         "android.permission.READ_MEDIA_IMAGES",
         "android.permission.READ_MEDIA_VIDEO",
-        "android.permission.READ_MEDIA_AUDIO"
-      ]
+        "android.permission.READ_MEDIA_AUDIO",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
+      ],
+      "package": "com.tz01x.nmusic"
+    },
+    "ios": {
+      "icon": "./assets/expo.icon",
+      "infoPlist": {
+        "UIBackgroundModes": ["audio"]
+      }
     },
     "web": {
       "output": "static",
@@ -34,6 +40,10 @@
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-av",
+        { "microphonePermission": false }
+      ],
       [
         "expo-media-library",
         {

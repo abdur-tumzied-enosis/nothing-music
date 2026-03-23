@@ -1,7 +1,10 @@
-import { Tabs } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
+import { Tabs } from 'expo-router';
+import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { BottomTabBar } from '@react-navigation/bottom-tabs';
 import { Feather } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
+import { MiniPlayer } from '@/components/player/MiniPlayer';
 
 type FeatherName = React.ComponentProps<typeof Feather>['name'];
 
@@ -22,11 +25,21 @@ function TabIcon({
   );
 }
 
+function CustomTabBar(props: BottomTabBarProps) {
+  return (
+    <View>
+      <MiniPlayer />
+      <BottomTabBar {...props} />
+    </View>
+  );
+}
+
 export default function TabLayout() {
   const { colors } = useTheme();
 
   return (
     <Tabs
+      tabBar={(props) => <CustomTabBar {...props} />}
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: false,

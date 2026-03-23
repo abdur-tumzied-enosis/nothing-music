@@ -34,13 +34,13 @@
 
 ## Phase 3 — Playback
 
-- [ ] #17 Set up expo-av audio session (background mode)
-- [ ] #18 Build audioService (load, play/pause, seek, skip)
-- [ ] #19 Wire playerStore to audioService
-- [ ] #20 Build MiniPlayer persistent bar
-- [ ] #21 Build full-screen Player screen
-- [ ] #22 Build DotProgress seek bar component
-- [ ] #23 Lock screen / notification controls
+- [x] #17 Set up expo-av audio session (background mode)
+- [x] #18 Build audioService (load, play/pause, seek, skip)
+- [x] #19 Wire playerStore to audioService
+- [x] #20 Build MiniPlayer persistent bar
+- [x] #21 Build full-screen Player screen
+- [x] #22 Build DotProgress seek bar component
+- [x] #23 Lock screen / notification controls
 
 ---
 
