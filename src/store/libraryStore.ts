@@ -118,6 +118,8 @@ export const useLibraryStore = create<LibraryStore>((set, get) => ({
         const artist = 'Unknown Artist';
         const artistId = `artist_${slugify(artist)}`;
 
+        console.log('[libraryStore] asset:', asset.id, asset.filename, 'uri:', asset.uri, 'albumId:', asset.albumId);
+
         return {
           id: asset.id,
           uri: asset.uri,

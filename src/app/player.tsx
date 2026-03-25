@@ -1,4 +1,4 @@
-import { View, StyleSheet, Pressable, Dimensions } from 'react-native';
+import { View, StyleSheet, Pressable, Dimensions, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -17,6 +17,7 @@ export default function PlayerScreen() {
   const router = useRouter();
 
   const currentTrack = usePlayerStore((s) => s.currentTrack);
+  console.log('[player] currentTrack:', currentTrack?.id, currentTrack?.title, 'artworkUri:', currentTrack?.artworkUri);
   const isPlaying = usePlayerStore((s) => s.isPlaying);
   const position = usePlayerStore((s) => s.position);
   const duration = usePlayerStore((s) => s.duration);
@@ -56,7 +57,7 @@ export default function PlayerScreen() {
         <View style={styles.headerSpacer} />
       </View>
 
-      {/* Album art placeholder */}
+      {/* Album art */}
       <View
         style={[
           styles.art,
@@ -67,7 +68,14 @@ export default function PlayerScreen() {
             borderColor: colors.border,
           },
         ]}
-      />
+      >
+        {currentTrack.artworkUri ? (
+          <Image
+            source={{ uri: currentTrack.artworkUri }}
+            style={{ width: '100%', height: '100%', borderRadius: 8 }}
+          />
+        ) : null}
+      </View>
 
       {/* Track metadata */}
       <View style={styles.meta}>

@@ -1,4 +1,4 @@
-import { View, Pressable, StyleSheet } from 'react-native';
+import { View, Pressable, StyleSheet, Image } from 'react-native';
 import { useEffect } from 'react';
 import Animated, {
   useSharedValue,
@@ -18,6 +18,7 @@ export function MiniPlayer() {
   const router = useRouter();
 
   const currentTrack = usePlayerStore((s) => s.currentTrack);
+  console.log('[MiniPlayer] currentTrack:', currentTrack?.id, currentTrack?.title, 'artworkUri:', currentTrack?.artworkUri);
   const isPlaying = usePlayerStore((s) => s.isPlaying);
   const position = usePlayerStore((s) => s.position);
   const duration = usePlayerStore((s) => s.duration);
@@ -61,7 +62,11 @@ export function MiniPlayer() {
           onPress={() => router.push('/player')}
           style={({ pressed }) => [styles.info, { opacity: pressed ? 0.7 : 1 }]}
         >
-          <View style={[styles.art, { backgroundColor: colors.surfaceRaised }]} />
+          {currentTrack.artworkUri ? (
+            <Image source={{ uri: currentTrack.artworkUri }} style={styles.art} />
+          ) : (
+            <View style={[styles.art, { backgroundColor: colors.surfaceRaised }]} />
+          )}
           <View style={styles.meta}>
             <NText variant="body" numberOfLines={1} style={styles.title}>
               {currentTrack.title}

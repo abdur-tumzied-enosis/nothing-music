@@ -8,6 +8,7 @@ import { usePlayerStore } from '@/store/playerStore';
 import type { Track } from '@/store/types';
 
 let _setupDone = false;
+let _isLoadingQueue = false;
 
 export async function setup() {
   if (_setupDone) return;
@@ -43,12 +44,14 @@ export async function setup() {
   });
 
   // Sync track changes triggered by lock screen / notification skip
-  TrackPlayer.addEventListener(Event.PlaybackActiveTrackChanged, ({ track: rnTrack, index }) => {
+  TrackPlayer.addEventListener(Event.PlaybackActiveTrackChanged, async ({ track: rnTrack, index }) => {
+    if (_isLoadingQueue) return;
     if (!rnTrack || index === undefined) return;
     const { currentTrack, queue } = usePlayerStore.getState();
     if (currentTrack?.id !== rnTrack.id) {
       const ourTrack = queue[index] ?? null;
       if (ourTrack) {
+        console.log('[audioService] ActiveTrackChanged:', rnTrack.id, 'artwork from RNP:', rnTrack.artwork);
         usePlayerStore.setState({ currentTrack: ourTrack, queueIndex: index, position: 0, duration: 0 });
       }
     }
@@ -59,6 +62,19 @@ export async function setup() {
     const isPlaying = state === State.Playing;
     if (isPlaying !== usePlayerStore.getState().isPlaying) {
       usePlayerStore.setState({ isPlaying });
+    }
+  });
+
+  // Extract embedded ID3 artwork from audio files
+  TrackPlayer.addEventListener(Event.MetadataCommonReceived, ({ artworkUri }) => {
+    if (artworkUri) {
+      console.log('[audioService] MetadataCommonReceived artworkUri:', artworkUri);
+      const { currentTrack } = usePlayerStore.getState();
+      if (currentTrack) {
+        usePlayerStore.setState({
+          currentTrack: { ...currentTrack, artworkUri },
+        });
+      }
     }
   });
 
@@ -74,22 +90,31 @@ export async function setup() {
 }
 
 function toRNTPTracks(tracks: Track[]) {
-  return tracks.map((t) => ({
-    id: t.id,
-    url: t.uri,
-    title: t.title,
-    artist: t.artist,
-    album: t.album,
-    duration: t.duration / 1000,
-    artwork: t.artworkUri ?? undefined,
-  }));
+  return tracks.map((t) => {
+    console.log('[audioService] toRNTPTracks:', t.id, t.title, 'artworkUri:', t.artworkUri);
+    return {
+      id: t.id,
+      url: t.uri,
+      title: t.title,
+      artist: t.artist,
+      album: t.album,
+      duration: t.duration / 1000,
+      artwork: t.artworkUri ?? undefined,
+    };
+  });
 }
 
 export async function loadQueue(track: Track, queue: Track[]) {
   const rnTracks = toRNTPTracks(queue);
   const startIndex = Math.max(0, queue.findIndex((t) => t.id === track.id));
-  await TrackPlayer.setQueue(rnTracks);
-  if (startIndex > 0) await TrackPlayer.skip(startIndex);
+  _isLoadingQueue = true;
+  try {
+    await TrackPlayer.reset();
+    await TrackPlayer.add(rnTracks);
+    if (startIndex > 0) await TrackPlayer.skip(startIndex);
+  } finally {
+    _isLoadingQueue = false;
+  }
   await TrackPlayer.play();
 }
 
