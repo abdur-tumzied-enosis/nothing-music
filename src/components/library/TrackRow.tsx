@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Pressable, View, StyleSheet, ViewStyle, StyleProp } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
@@ -11,16 +12,18 @@ interface TrackRowProps {
   trackNumber?: number;
   isPlaying?: boolean;
   onPress?: () => void;
+  onLongPress?: () => void;
   style?: StyleProp<ViewStyle>;
 }
 
-export function TrackRow({
+export const TrackRow = memo(function TrackRow({
   title,
   artist,
   duration,
   trackNumber,
   isPlaying = false,
   onPress,
+  onLongPress,
   style,
 }: TrackRowProps) {
   const { colors } = useTheme();
@@ -28,6 +31,7 @@ export function TrackRow({
   return (
     <Pressable
       onPress={onPress}
+      onLongPress={onLongPress}
       style={({ pressed }) => [
         styles.row,
         {
@@ -73,7 +77,7 @@ export function TrackRow({
       </NText>
     </Pressable>
   );
-}
+});
 
 const styles = StyleSheet.create({
   row: {

@@ -46,19 +46,19 @@
 
 ## Phase 4 — Playlists & Search
 
-- [ ] #24 Build Search screen with real-time filter
-- [ ] #25 Build Playlist creation flow and detail screen
-- [ ] #26 Build Album detail screen
-- [ ] #27 Build Artist detail screen
-- [ ] #28 Recently played section on Home
+- [x] #24 Build Search screen with real-time filter
+- [x] #25 Build Playlist creation flow and detail screen
+- [x] #26 Build Album detail screen
+- [x] #27 Build Artist detail screen
+- [x] #28 Recently played section on Home
 
 ---
 
 ## Phase 5 — Polish & Settings
 
-- [ ] #29 Build Settings screen
-- [ ] #30 Implement haptic feedback on player controls
-- [ ] #31 Implement sleep timer
-- [ ] #32 Animated transitions (MiniPlayer slide-up, screen entries)
-- [ ] #33 Error states and performance audit
+- [x] #29 Build Settings screen
+- [x] #30 Implement haptic feedback on player controls
+- [x] #31 Implement sleep timer
+- [x] #32 Animated transitions (MiniPlayer slide-up, screen entries)
+- [x] #33 Error states and performance audit
 - [ ] #34 App icon and splash screen (Nothing OS styled)

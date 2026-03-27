@@ -12,7 +12,8 @@
     "lint": "expo lint",
     "develop-build": "npx eas build --platform android --profile development",
     "preview-build": "npx eas build --platform android --profile preview",
-    "production-build": "npx eas build --platform android --profile production"
+    "production-build": "npx eas build --platform android --profile production",
+    "build-release": "expo prebuild --platform android && cd android && ./gradlew assembleRelease"
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.4.2",

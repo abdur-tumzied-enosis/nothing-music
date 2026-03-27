@@ -3,6 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
+import { useHaptics } from '@/hooks/useHaptics';
 import { usePlayerStore } from '@/store/playerStore';
 import { Spacing } from '@/theme/spacing';
 import { NText } from '@/components/ui/NText';
@@ -14,6 +15,7 @@ const ART_SIZE = width - Spacing.screenH * 2;
 
 export default function PlayerScreen() {
   const { colors } = useTheme();
+  const { light, medium } = useHaptics();
   const router = useRouter();
 
   const currentTrack = usePlayerStore((s) => s.currentTrack);
@@ -103,7 +105,7 @@ export default function PlayerScreen() {
       <View style={styles.controls}>
         {/* Shuffle */}
         <Pressable
-          onPress={toggleShuffle}
+          onPress={() => { light(); toggleShuffle(); }}
           hitSlop={10}
           style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
         >
@@ -112,7 +114,7 @@ export default function PlayerScreen() {
 
         {/* Skip previous */}
         <Pressable
-          onPress={skipPrev}
+          onPress={() => { light(); skipPrev(); }}
           hitSlop={10}
           style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
         >
@@ -121,7 +123,7 @@ export default function PlayerScreen() {
 
         {/* Play / Pause — the ONE accent element */}
         <Pressable
-          onPress={() => (isPlaying ? pause() : resume())}
+          onPress={() => { medium(); isPlaying ? pause() : resume(); }}
           style={({ pressed }) => [
             styles.playBtn,
             { backgroundColor: colors.accent, opacity: pressed ? 0.85 : 1 },
@@ -132,7 +134,7 @@ export default function PlayerScreen() {
 
         {/* Skip next */}
         <Pressable
-          onPress={skipNext}
+          onPress={() => { light(); skipNext(); }}
           hitSlop={10}
           style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
         >
@@ -141,7 +143,7 @@ export default function PlayerScreen() {
 
         {/* Repeat */}
         <Pressable
-          onPress={cycleRepeat}
+          onPress={() => { light(); cycleRepeat(); }}
           hitSlop={10}
           style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
         >

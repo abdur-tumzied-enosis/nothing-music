@@ -22,6 +22,7 @@ interface LibraryStore {
   isScanning: boolean;
   lastScanned: number;
   permissionDenied: boolean;
+  scanError: boolean;
 
   loadPersistedLibrary: () => Promise<void>;
   scanLibrary: () => Promise<void>;
@@ -33,6 +34,28 @@ interface LibraryStore {
 
 function parseTitle(filename: string): string {
   return filename.replace(/\.[^/.]+$/, '');
+}
+
+/**
+ * Persist the library to AsyncStorage, stripping artworkUri (base64 data URIs)
+ * from tracks and albums before serialisation.
+ *
+ * artworkUri strings can be several hundred KB each. With a large library they
+ * push the payload into the tens of megabytes and cause an OOM in AsyncStorage's
+ * background thread. Artwork is re-extracted from disk on each scan, so it is
+ * safe to omit it from the persistent cache.
+ */
+async function persistLibrary(
+  tracks: Track[],
+  albums: Album[],
+  artists: Artist[],
+  playlists: Playlist[],
+  lastScanned: number,
+) {
+  const lightTracks = tracks.map((t) => ({ ...t, artworkUri: null }));
+  const lightAlbums = albums.map((a) => ({ ...a, artworkUri: null }));
+  const payload: PersistedLibrary = { tracks: lightTracks, albums: lightAlbums, artists, playlists, lastScanned };
+  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
 }
 
 function slugify(str: string): string {
@@ -47,6 +70,7 @@ export const useLibraryStore = create<LibraryStore>((set, get) => ({
   isScanning: false,
   lastScanned: 0,
   permissionDenied: false,
+  scanError: false,
 
   // #16 — Load persisted library from AsyncStorage on startup
   loadPersistedLibrary: async () => {
@@ -82,7 +106,7 @@ export const useLibraryStore = create<LibraryStore>((set, get) => ({
       return;
     }
 
-    set({ isScanning: true, permissionDenied: false });
+    set({ isScanning: true, permissionDenied: false, scanError: false });
 
     try {
       // Build albumId → title map from media library albums
@@ -193,42 +217,53 @@ export const useLibraryStore = create<LibraryStore>((set, get) => ({
 
       set({ tracks, albums, artists, isScanning: false, lastScanned });
 
-      // #16 — Persist to AsyncStorage
-      const toStore: PersistedLibrary = { tracks, albums, artists, playlists, lastScanned };
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(toStore));
+      // #16 — Persist to AsyncStorage (artwork stripped to avoid OOM)
+      await persistLibrary(tracks, albums, artists, playlists, lastScanned);
     } catch {
-      set({ isScanning: false });
+      set({ isScanning: false, scanError: true });
     }
   },
 
-  addPlaylist: (name) =>
+  addPlaylist: (name) => {
     set((s) => ({
       playlists: [
         ...s.playlists,
         { id: `pl_${Date.now()}`, name, trackIds: [], createdAt: Date.now() },
       ],
-    })),
+    }));
+    const { playlists, tracks, albums, artists, lastScanned } = get();
+    persistLibrary(tracks, albums, artists, playlists, lastScanned);
+  },
 
-  addToPlaylist: (playlistId, trackId) =>
+  addToPlaylist: (playlistId, trackId) => {
     set((s) => ({
       playlists: s.playlists.map((pl) =>
         pl.id === playlistId && !pl.trackIds.includes(trackId)
           ? { ...pl, trackIds: [...pl.trackIds, trackId] }
           : pl
       ),
-    })),
+    }));
+    const { playlists, tracks, albums, artists, lastScanned } = get();
+    persistLibrary(tracks, albums, artists, playlists, lastScanned);
+  },
 
-  removeFromPlaylist: (playlistId, trackId) =>
+  removeFromPlaylist: (playlistId, trackId) => {
     set((s) => ({
       playlists: s.playlists.map((pl) =>
         pl.id === playlistId
           ? { ...pl, trackIds: pl.trackIds.filter((id) => id !== trackId) }
           : pl
       ),
-    })),
+    }));
+    const { playlists, tracks, albums, artists, lastScanned } = get();
+    persistLibrary(tracks, albums, artists, playlists, lastScanned);
+  },
 
-  deletePlaylist: (playlistId) =>
+  deletePlaylist: (playlistId) => {
     set((s) => ({
       playlists: s.playlists.filter((pl) => pl.id !== playlistId),
-    })),
+    }));
+    const { playlists, tracks, albums, artists, lastScanned } = get();
+    persistLibrary(tracks, albums, artists, playlists, lastScanned);
+  },
 }));

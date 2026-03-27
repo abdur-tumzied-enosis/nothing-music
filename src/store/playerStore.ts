@@ -11,6 +11,7 @@ interface PlayerStore {
   duration: number;   // ms
   shuffle: boolean;
   repeat: RepeatMode;
+  recentlyPlayed: Track[]; // last 10 played
 
   play: (track: Track, queue?: Track[]) => void;
   pause: () => void;
@@ -33,11 +34,26 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   duration: 0,
   shuffle: false,
   repeat: 'none',
+  recentlyPlayed: [],
 
   play: (track, queue) => {
     const q = queue ?? [track];
     const idx = Math.max(0, q.findIndex((t) => t.id === track.id));
-    set({ currentTrack: track, queue: q, queueIndex: idx, isPlaying: true, position: 0, duration: 0 });
+
+    // Update recently played — move to front if already exists, otherwise prepend
+    const { recentlyPlayed } = get();
+    const filtered = recentlyPlayed.filter((t) => t.id !== track.id);
+    const updated = [track, ...filtered].slice(0, 10);
+
+    set({
+      currentTrack: track,
+      queue: q,
+      queueIndex: idx,
+      isPlaying: true,
+      position: 0,
+      duration: 0,
+      recentlyPlayed: updated,
+    });
     audioService.loadQueue(track, q);
   },
 

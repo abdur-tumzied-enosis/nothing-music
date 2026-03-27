@@ -7,6 +7,8 @@ import { Inter_400Regular, Inter_500Medium } from '@expo-google-fonts/inter';
 import TrackPlayer from 'react-native-track-player';
 import { PlaybackService } from '@/services/playbackService';
 import { useLibraryStore } from '@/store/libraryStore';
+import { useSettingsStore } from '@/store/settingsStore';
+import { useSleepTimer } from '@/hooks/useSleepTimer';
 import * as audioService from '@/services/audioService';
 
 // Module-level registration — runs synchronously before any component mounts.
@@ -25,10 +27,14 @@ export default function RootLayout() {
   });
 
   const loadPersistedLibrary = useLibraryStore((s) => s.loadPersistedLibrary);
+  const loadPersistedSettings = useSettingsStore((s) => s.loadPersistedSettings);
+
+  useSleepTimer();
 
   useEffect(() => {
     if (fontsLoaded) {
       SplashScreen.hideAsync();
+      loadPersistedSettings();
       loadPersistedLibrary();
       audioService.setup();
     }
@@ -45,6 +51,9 @@ export default function RootLayout() {
             animation: 'slide_from_bottom',
           }}
         />
+        <Stack.Screen name="album/[id]" />
+        <Stack.Screen name="artist/[id]" />
+        <Stack.Screen name="playlist/[id]" />
       </Stack>
       <StatusBar style="auto" />
     </>

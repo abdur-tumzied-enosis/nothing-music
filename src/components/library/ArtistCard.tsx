@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Pressable, View, StyleSheet } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
 import { Spacing } from '@/theme/spacing';
@@ -9,7 +10,7 @@ interface ArtistCardProps {
   onPress?: () => void;
 }
 
-export function ArtistCard({ artist, onPress }: ArtistCardProps) {
+export const ArtistCard = memo(function ArtistCard({ artist, onPress }: ArtistCardProps) {
   const { colors } = useTheme();
 
   const subtitle = [
@@ -39,7 +40,7 @@ export function ArtistCard({ artist, onPress }: ArtistCardProps) {
       </View>
     </Pressable>
   );
-}
+});
 
 const styles = StyleSheet.create({
   row: {

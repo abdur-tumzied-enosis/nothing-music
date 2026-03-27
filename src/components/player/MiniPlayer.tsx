@@ -9,12 +9,14 @@ import Animated, {
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
+import { useHaptics } from '@/hooks/useHaptics';
 import { usePlayerStore } from '@/store/playerStore';
 import { Spacing } from '@/theme/spacing';
 import { NText } from '@/components/ui/NText';
 
 export function MiniPlayer() {
   const { colors } = useTheme();
+  const { medium } = useHaptics();
   const router = useRouter();
 
   const currentTrack = usePlayerStore((s) => s.currentTrack);
@@ -78,7 +80,7 @@ export function MiniPlayer() {
 
         {/* Play / Pause */}
         <Pressable
-          onPress={() => (isPlaying ? pause() : resume())}
+          onPress={() => { medium(); isPlaying ? pause() : resume(); }}
           hitSlop={8}
           style={({ pressed }) => [styles.playBtn, { backgroundColor: colors.accent, opacity: pressed ? 0.8 : 1 }]}
         >

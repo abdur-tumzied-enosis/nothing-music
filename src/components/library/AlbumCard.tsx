@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Pressable, View, StyleSheet, useWindowDimensions } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
 import { Spacing } from '@/theme/spacing';
@@ -9,7 +10,7 @@ interface AlbumCardProps {
   onPress?: () => void;
 }
 
-export function AlbumCard({ album, onPress }: AlbumCardProps) {
+export const AlbumCard = memo(function AlbumCard({ album, onPress }: AlbumCardProps) {
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const cardWidth = (width - Spacing.screenH * 2 - Spacing.s3) / 2;
@@ -41,7 +42,7 @@ export function AlbumCard({ album, onPress }: AlbumCardProps) {
       </View>
     </Pressable>
   );
-}
+});
 
 const styles = StyleSheet.create({
   card: {
