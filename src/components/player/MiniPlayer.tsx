@@ -18,7 +18,6 @@ export function MiniPlayer() {
   const router = useRouter();
 
   const currentTrack = usePlayerStore((s) => s.currentTrack);
-  console.log('[MiniPlayer] currentTrack:', currentTrack?.id, currentTrack?.title, 'artworkUri:', currentTrack?.artworkUri);
   const isPlaying = usePlayerStore((s) => s.isPlaying);
   const position = usePlayerStore((s) => s.position);
   const duration = usePlayerStore((s) => s.duration);

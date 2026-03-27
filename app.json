@@ -56,7 +56,8 @@
             "imageWidth": 76
           }
         }
-      ]
+      ],
+      "./plugins/withAlbumArtExtractor"
     ],
     "newArchEnabled": false,
     "experiments": {

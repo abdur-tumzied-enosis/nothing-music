@@ -18,7 +18,7 @@ export async function setup() {
     // On hot reload RNTP is already initialized — that's fine, continue.
     const msg = e instanceof Error ? e.message : String(e);
     if (!msg.includes('already')) {
-      console.warn('[audioService] setupPlayer failed:', msg);
+      // Only warn in dev — remove before prod
       return;
     }
   }
@@ -51,7 +51,6 @@ export async function setup() {
     if (currentTrack?.id !== rnTrack.id) {
       const ourTrack = queue[index] ?? null;
       if (ourTrack) {
-        console.log('[audioService] ActiveTrackChanged:', rnTrack.id, 'artwork from RNP:', rnTrack.artwork);
         usePlayerStore.setState({ currentTrack: ourTrack, queueIndex: index, position: 0, duration: 0 });
       }
     }
@@ -68,7 +67,6 @@ export async function setup() {
   // Extract embedded ID3 artwork from audio files
   TrackPlayer.addEventListener(Event.MetadataCommonReceived, ({ artworkUri }) => {
     if (artworkUri) {
-      console.log('[audioService] MetadataCommonReceived artworkUri:', artworkUri);
       const { currentTrack } = usePlayerStore.getState();
       if (currentTrack) {
         usePlayerStore.setState({
@@ -84,14 +82,12 @@ export async function setup() {
   });
 
   TrackPlayer.addEventListener(Event.PlaybackError, ({ message }) => {
-    console.warn('[audioService] Playback error:', message);
     usePlayerStore.setState({ isPlaying: false });
   });
 }
 
 function toRNTPTracks(tracks: Track[]) {
   return tracks.map((t) => {
-    console.log('[audioService] toRNTPTracks:', t.id, t.title, 'artworkUri:', t.artworkUri);
     return {
       id: t.id,
       url: t.uri,

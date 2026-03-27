@@ -1,9 +1,9 @@
-import { View, Pressable, StyleSheet, LayoutChangeEvent } from 'react-native';
-import { useState } from 'react';
 import { useTheme } from '@/hooks/useTheme';
+import { useState } from 'react';
+import { LayoutChangeEvent, Pressable, StyleSheet, View } from 'react-native';
 
-const DOT_COUNT = 40;
-const DOT_SIZE = 4;
+const DOT_COUNT = 35;
+const DOT_SIZE = 8;
 
 interface DotProgressProps {
   position: number;  // ms
@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
   dot: {
     width: DOT_SIZE,
     height: DOT_SIZE,
-    borderRadius: 2,
+    borderRadius: DOT_SIZE,
     borderWidth: 1,
   },
 });

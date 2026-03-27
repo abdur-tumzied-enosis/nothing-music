@@ -89,6 +89,7 @@ export default function LibraryScreen() {
     if (activeTab === 'tracks') {
       return (
         <FlatList
+          key="tracks"
           data={tracks}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
@@ -115,6 +116,7 @@ export default function LibraryScreen() {
     if (activeTab === 'albums') {
       return (
         <FlatList
+          key="albums"
           data={albums}
           keyExtractor={(item) => item.id}
           numColumns={2}
@@ -131,6 +133,7 @@ export default function LibraryScreen() {
     // artists
     return (
       <FlatList
+        key="artists"
         data={artists}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <ArtistCard artist={item} />}

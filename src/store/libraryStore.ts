@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import * as MediaLibrary from 'expo-media-library';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Track, Album, Artist, Playlist } from './types';
+import { getAllMetadata } from '../services/albumArtExtractor';
 
 const STORAGE_KEY = 'nmusic_library';
 
@@ -110,30 +111,47 @@ export const useLibraryStore = create<LibraryStore>((set, get) => ({
       }
 
       // #12 — Parse metadata from each asset
-      const tracks: Track[] = allAssets.map((asset) => {
-        const albumName = asset.albumId
-          ? (albumTitleMap[asset.albumId] ?? 'Unknown Album')
-          : 'Unknown Album';
-        const albumId = asset.albumId ?? `album_${slugify(albumName)}`;
-        const artist = 'Unknown Artist';
-        const artistId = `artist_${slugify(artist)}`;
+      const CONCURRENCY = 8;
+      const tracks: Track[] = [];
 
-        console.log('[libraryStore] asset:', asset.id, asset.filename, 'uri:', asset.uri, 'albumId:', asset.albumId);
+      for (let i = 0; i < allAssets.length; i += CONCURRENCY) {
+        const batch = allAssets.slice(i, i + CONCURRENCY);
+        const batchTracks = await Promise.all(
+          batch.map(async (asset) => {
+            let metadata: import('../services/albumArtExtractor').AudioMetadata | null = null;
+            try {
+              metadata = await getAllMetadata(asset.uri);
+            } catch {
+              // getAllMetadata fails on some files — fall back to basic data
+            }
 
-        return {
-          id: asset.id,
-          uri: asset.uri,
-          title: parseTitle(asset.filename),
-          artist,
-          album: albumName,
-          albumId,
-          artistId,
-          duration: Math.round(asset.duration * 1000),
-          trackNumber: null,
-          artworkUri: null,
-          dateAdded: asset.creationTime,
-        };
-      });
+            const albumName =
+              metadata?.album ??
+              (asset.albumId
+                ? (albumTitleMap[asset.albumId] ?? 'Unknown Album')
+                : 'Unknown Album');
+            const artist = metadata?.artist ?? 'Unknown Artist';
+            const artistId = `artist_${slugify(artist)}`;
+            const albumId = asset.albumId ?? `album_${slugify(albumName)}`;
+
+
+            return {
+              id: asset.id,
+              uri: asset.uri,
+              title: metadata?.title ?? parseTitle(asset.filename),
+              artist,
+              album: albumName,
+              albumId,
+              artistId,
+              duration: Math.round(asset.duration * 1000),
+              trackNumber: metadata?.trackNumber ? parseInt(metadata.trackNumber, 10) || null : null,
+              artworkUri: metadata?.artworkUri ?? null,
+              dateAdded: asset.creationTime,
+            };
+          })
+        );
+        tracks.push(...batchTracks);
+      }
 
       // #13 — Derive albums from tracks
       const albumMap: Record<string, Album> = {};
@@ -143,7 +161,7 @@ export const useLibraryStore = create<LibraryStore>((set, get) => ({
             id: track.albumId,
             title: track.album,
             artist: track.artist,
-            artworkUri: null,
+            artworkUri: track.artworkUri,
             trackCount: 0,
             year: null,
           };
