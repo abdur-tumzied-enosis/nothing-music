@@ -145,7 +145,13 @@ export const useLibraryStore = create<LibraryStore>((set, get) => ({
             let metadata: import('../services/albumArtExtractor').AudioMetadata | null = null;
             try {
               metadata = await getAllMetadata(asset.uri);
-            } catch {
+              if (metadata?.artworkUri) {
+                console.log('[LibraryStore] Successfully extracted artwork for:', asset.filename);
+              } else {
+                console.warn('[LibraryStore] No artwork found in metadata for:', asset.filename, metadata);
+              }
+            } catch (error) {
+              console.warn('[LibraryStore] Metadata extraction failed for:', asset.filename, asset.uri, error);
               // getAllMetadata fails on some files — fall back to basic data
             }
 

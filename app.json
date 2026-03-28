@@ -2,7 +2,7 @@
   "expo": {
     "name": "nmusic",
     "slug": "nmusic",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/images/app_icon/play_store_512.png",
     "scheme": "nmusic",
@@ -52,7 +52,7 @@
         {
           "backgroundColor": "#000000",
           "android": {
-            "image": "./assets/images/app_icon/play_store_512.png",
+            "image": "./assets/images/app_icon/splash_icon.png",
             "imageWidth": 76
           }
         }

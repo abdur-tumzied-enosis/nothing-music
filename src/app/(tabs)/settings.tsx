@@ -6,7 +6,7 @@ import { useSettingsStore } from '@/store/settingsStore';
 import { SortOrder, ThemeMode } from '@/store/types';
 import { Spacing } from '@/theme/spacing';
 import { formatTime } from '@/utils/formatTime';
-import { Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
 
 
 const THEME_OPTIONS: { label: string; value: ThemeMode }[] = [
@@ -23,7 +23,7 @@ const SORT_OPTIONS: { label: string; value: SortOrder }[] = [
 
 const SLEEP_OPTIONS = [15, 30, 45, 60] as const;
 
-const APP_VERSION = '1.0.1';
+const APP_VERSION = '1.0.3';
 
 export default function SettingsScreen() {
   const { colors } = useTheme();
@@ -153,9 +153,14 @@ export default function SettingsScreen() {
         <NText variant="body" color="secondary">
           Developed by
         </NText>
-        <NText variant="body" color="primary">
-          Tumzied
-        </NText>
+        <Pressable
+          onPress={() => Linking.openURL('https://linkedin.com/in/tumzied')}
+          style={{ paddingVertical: Spacing.s3 }}
+        >
+          <NText variant="body" color="primary">
+            Tumzied
+          </NText>
+        </Pressable>
       </View>
 
       <View style={styles.bottomPad} />

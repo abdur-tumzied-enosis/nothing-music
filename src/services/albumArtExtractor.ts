@@ -22,8 +22,19 @@ export interface AudioMetadata {
  * embedded picture exists, or throws on error.
  */
 export async function getEmbeddedPicture(uri: string): Promise<string | null> {
-  if (Platform.OS !== 'android') return null;
-  return AlbumArtExtractor.getEmbeddedPicture(uri);
+  if (Platform.OS !== 'android') {
+    console.log('[AlbumArtExtractor] getEmbeddedPicture: Not Android platform:', Platform.OS);
+    return null;
+  }
+  console.log('[AlbumArtExtractor] Attempting to get embedded picture for:', uri);
+  try {
+    const result = await AlbumArtExtractor.getEmbeddedPicture(uri);
+    console.log('[AlbumArtExtractor] getEmbeddedPicture result:', result);
+    return result;
+  } catch (error) {
+    console.warn('[AlbumArtExtractor] getEmbeddedPicture failed:', error);
+    throw error;
+  }
 }
 
 /**
@@ -34,6 +45,17 @@ export async function getEmbeddedPicture(uri: string): Promise<string | null> {
  * @returns An object with all available metadata fields plus artworkUri.
  */
 export async function getAllMetadata(uri: string): Promise<AudioMetadata | null> {
-  if (Platform.OS !== 'android') return null;
-  return AlbumArtExtractor.getAllMetadata(uri);
+  if (Platform.OS !== 'android') {
+    console.log('[AlbumArtExtractor] getAllMetadata: Not Android platform:', Platform.OS);
+    return null;
+  }
+  console.log('[AlbumArtExtractor] Attempting to get all metadata for:', uri);
+  try {
+    const result = await AlbumArtExtractor.getAllMetadata(uri);
+    console.log('[AlbumArtExtractor] getAllMetadata result:', result);
+    return result;
+  } catch (error) {
+    console.warn('[AlbumArtExtractor] getAllMetadata failed:', error);
+    throw error;
+  }
 }
