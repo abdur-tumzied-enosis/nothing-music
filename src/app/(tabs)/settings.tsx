@@ -23,7 +23,7 @@ const SORT_OPTIONS: { label: string; value: SortOrder }[] = [
 
 const SLEEP_OPTIONS = [15, 30, 45, 60] as const;
 
-const APP_VERSION = '1.0.3';
+const APP_VERSION = '1.0.4';
 
 export default function SettingsScreen() {
   const { colors } = useTheme();
@@ -51,7 +51,7 @@ export default function SettingsScreen() {
     >
       {/* ── Header ── */}
       <View style={styles.header}>
-        <NText variant="h2">Settings</NText>
+        <NText variant="h2" ndot>Settings</NText>
       </View>
 
       {/* ── Appearance ── */}
@@ -145,7 +145,7 @@ export default function SettingsScreen() {
         <NText variant="body" color="secondary">
           App Version
         </NText>
-        <NText variant="body" color="primary">
+        <NText variant="body" color="primary" ndot>
           {APP_VERSION}
         </NText>
       </View>
@@ -157,7 +157,7 @@ export default function SettingsScreen() {
           onPress={() => Linking.openURL('https://linkedin.com/in/tumzied')}
           style={{ paddingVertical: Spacing.s3 }}
         >
-          <NText variant="body" color="primary">
+          <NText variant="body" color="primary" ndot>
             Tumzied
           </NText>
         </Pressable>
@@ -277,7 +277,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: Spacing.s3,
-    marginBottom: Spacing.s4,
+    paddingVertical: Spacing.s1,
   },
 });

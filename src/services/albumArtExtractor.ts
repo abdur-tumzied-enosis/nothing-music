@@ -52,7 +52,7 @@ export async function getAllMetadata(uri: string): Promise<AudioMetadata | null>
   console.log('[AlbumArtExtractor] Attempting to get all metadata for:', uri);
   try {
     const result = await AlbumArtExtractor.getAllMetadata(uri);
-    console.log('[AlbumArtExtractor] getAllMetadata result:', result);
+    console.log('[AlbumArtExtractor] getAllMetadata result:', {...result, artworkUri: result?.artworkUri ? '[data URI]' : null});
     return result;
   } catch (error) {
     console.warn('[AlbumArtExtractor] getAllMetadata failed:', error);

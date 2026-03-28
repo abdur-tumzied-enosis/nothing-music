@@ -1,8 +1,8 @@
-import { create } from 'zustand';
-import * as MediaLibrary from 'expo-media-library';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Track, Album, Artist, Playlist } from './types';
+import * as MediaLibrary from 'expo-media-library';
+import { create } from 'zustand';
 import { getAllMetadata } from '../services/albumArtExtractor';
+import { Album, Artist, Playlist, Track } from './types';
 
 const STORAGE_KEY = 'nmusic_library';
 
@@ -23,6 +23,7 @@ interface LibraryStore {
   lastScanned: number;
   permissionDenied: boolean;
   scanError: boolean;
+  artworkCache: Record<string, string>;
 
   loadPersistedLibrary: () => Promise<void>;
   scanLibrary: () => Promise<void>;
@@ -30,6 +31,8 @@ interface LibraryStore {
   addToPlaylist: (playlistId: string, trackId: string) => void;
   removeFromPlaylist: (playlistId: string, trackId: string) => void;
   deletePlaylist: (playlistId: string) => void;
+  getArtwork: (trackId: string) => Promise<string | null>;
+  prefetchArtwork: (trackIds: string[]) => void;
 }
 
 function parseTitle(filename: string): string {
@@ -71,6 +74,7 @@ export const useLibraryStore = create<LibraryStore>((set, get) => ({
   lastScanned: 0,
   permissionDenied: false,
   scanError: false,
+  artworkCache: {},
 
   // #16 — Load persisted library from AsyncStorage on startup
   loadPersistedLibrary: async () => {
@@ -271,5 +275,36 @@ export const useLibraryStore = create<LibraryStore>((set, get) => ({
     }));
     const { playlists, tracks, albums, artists, lastScanned } = get();
     persistLibrary(tracks, albums, artists, playlists, lastScanned);
+  },
+
+  getArtwork: async (trackId) => {
+    const { artworkCache, tracks } = get();
+    if (artworkCache[trackId] !== undefined) {
+      return artworkCache[trackId] || null;
+    }
+
+    const track = tracks.find((t) => t.id === trackId);
+    if (!track) return null;
+
+    let uri: string | null = null;
+    try {
+      const metadata = await getAllMetadata(track.uri);
+      uri = metadata?.artworkUri ?? null;
+    } catch {
+      // Unreadable file — no artwork
+      console.log('[LibraryStore] getArtwork: Failed to read metadata for track:', trackId, track.uri);
+    }
+
+    set((s) => ({ artworkCache: { ...s.artworkCache, [trackId]: uri ?? '' } }));
+    return uri;
+  },
+
+  prefetchArtwork: (trackIds) => {
+    const { artworkCache } = get();
+    trackIds.forEach((id) => {
+      if (artworkCache[id] === undefined) {
+        get().getArtwork(id); // fire and forget
+      }
+    });
   },
 }));

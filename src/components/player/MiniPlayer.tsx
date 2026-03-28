@@ -1,5 +1,5 @@
 import { View, Pressable, StyleSheet, Image } from 'react-native';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Animated, {
   useSharedValue,
   withTiming,
@@ -11,6 +11,7 @@ import { Feather } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
 import { useHaptics } from '@/hooks/useHaptics';
 import { usePlayerStore } from '@/store/playerStore';
+import { useLibraryStore } from '@/store/libraryStore';
 import { Spacing } from '@/theme/spacing';
 import { NText } from '@/components/ui/NText';
 
@@ -26,7 +27,10 @@ export function MiniPlayer() {
   const pause = usePlayerStore((s) => s.pause);
   const resume = usePlayerStore((s) => s.resume);
 
+  const getArtwork = useLibraryStore((s) => s.getArtwork);
+
   const translateY = useSharedValue(64);
+  const [artworkUri, setArtworkUri] = useState<string | null>(null);
 
   useEffect(() => {
     if (currentTrack) {
@@ -35,6 +39,11 @@ export function MiniPlayer() {
         easing: Easing.bezier(0.2, 0, 0, 1),
       });
     }
+  }, [currentTrack?.id]);
+
+  useEffect(() => {
+    if (!currentTrack) return;
+    getArtwork(currentTrack.id).then(setArtworkUri);
   }, [currentTrack?.id]);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -63,10 +72,14 @@ export function MiniPlayer() {
           onPress={() => router.push('/player')}
           style={({ pressed }) => [styles.info, { opacity: pressed ? 0.7 : 1 }]}
         >
-          {currentTrack.artworkUri ? (
-            <Image source={{ uri: currentTrack.artworkUri }} style={styles.art} />
+          {artworkUri ? (
+            <Image source={{ uri: artworkUri }} style={styles.art} />
           ) : (
-            <View style={[styles.art, { backgroundColor: colors.surfaceRaised }]} />
+            <View style={[styles.art, { backgroundColor: colors.surfaceRaised }]}>
+              <NText variant="caption" color="disabled" ndot>
+                {currentTrack.title.charAt(0).toUpperCase()}
+              </NText>
+            </View>
           )}
           <View style={styles.meta}>
             <NText variant="body" numberOfLines={1} style={styles.title}>
@@ -116,6 +129,8 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   meta: {
     flex: 1,

@@ -1,14 +1,16 @@
-import { View, StyleSheet, Pressable, Dimensions, Image } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { Feather } from '@expo/vector-icons';
-import { useTheme } from '@/hooks/useTheme';
+import { DotProgress } from '@/components/player/DotProgress';
+import { NText } from '@/components/ui/NText';
 import { useHaptics } from '@/hooks/useHaptics';
+import { useTheme } from '@/hooks/useTheme';
+import { useLibraryStore } from '@/store/libraryStore';
 import { usePlayerStore } from '@/store/playerStore';
 import { Spacing } from '@/theme/spacing';
-import { NText } from '@/components/ui/NText';
-import { DotProgress } from '@/components/player/DotProgress';
 import { formatTime } from '@/utils/formatTime';
+import { Feather } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { Dimensions, Image, Pressable, StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 const ART_SIZE = width - Spacing.screenH * 2;
@@ -24,6 +26,7 @@ export default function PlayerScreen() {
   const duration = usePlayerStore((s) => s.duration);
   const shuffle = usePlayerStore((s) => s.shuffle);
   const repeat = usePlayerStore((s) => s.repeat);
+  const queue = usePlayerStore((s) => s.queue);
 
   const pause = usePlayerStore((s) => s.pause);
   const resume = usePlayerStore((s) => s.resume);
@@ -32,6 +35,18 @@ export default function PlayerScreen() {
   const skipPrev = usePlayerStore((s) => s.skipPrev);
   const toggleShuffle = usePlayerStore((s) => s.toggleShuffle);
   const cycleRepeat = usePlayerStore((s) => s.cycleRepeat);
+
+  const getArtwork = useLibraryStore((s) => s.getArtwork);
+  const prefetchArtwork = useLibraryStore((s) => s.prefetchArtwork);
+
+  const [artworkUri, setArtworkUri] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!currentTrack) return;
+    getArtwork(currentTrack.id).then(setArtworkUri);
+    const idx = queue.findIndex((t) => t.id === currentTrack.id);
+    prefetchArtwork(queue.slice(idx + 1, idx + 3).map((t) => t.id));
+  }, [currentTrack?.id]);
 
   if (!currentTrack) {
     router.back();
@@ -70,12 +85,16 @@ export default function PlayerScreen() {
           },
         ]}
       >
-        {currentTrack.artworkUri ? (
+        {artworkUri ? (
           <Image
-            source={{ uri: currentTrack.artworkUri }}
+            source={{ uri: artworkUri }}
             style={{ width: '100%', height: '100%', borderRadius: 8 }}
           />
-        ) : null}
+        ) : (
+          <NText variant="h1" color="disabled" ndot>
+            {currentTrack.title.charAt(0).toUpperCase()}
+          </NText>
+        )}
       </View>
 
       {/* Track metadata */}
@@ -182,6 +201,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     marginTop: Spacing.s5,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   meta: {
     marginTop: Spacing.s5,

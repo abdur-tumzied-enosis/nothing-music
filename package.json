@@ -1,7 +1,7 @@
 {
   "name": "nmusic",
   "main": "expo-router/entry",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "scripts": {
     "postinstall": "patch-package",
     "start": "expo start",

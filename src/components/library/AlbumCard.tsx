@@ -1,6 +1,8 @@
 import { memo } from 'react';
-import { Pressable, View, StyleSheet, useWindowDimensions } from 'react-native';
+import { Pressable, View, StyleSheet, useWindowDimensions, Image } from 'react-native';
+import { useEffect, useState } from 'react';
 import { useTheme } from '@/hooks/useTheme';
+import { useLibraryStore } from '@/store/libraryStore';
 import { Spacing } from '@/theme/spacing';
 import { NText } from '@/components/ui/NText';
 import { Album } from '@/store/types';
@@ -15,21 +17,36 @@ export const AlbumCard = memo(function AlbumCard({ album, onPress }: AlbumCardPr
   const { width } = useWindowDimensions();
   const cardWidth = (width - Spacing.screenH * 2 - Spacing.s3) / 2;
 
+  const allTracks = useLibraryStore((s) => s.tracks);
+  const getArtwork = useLibraryStore((s) => s.getArtwork);
+  const [artworkUri, setArtworkUri] = useState<string | null>(null);
+
+  useEffect(() => {
+    const firstTrack = allTracks.find((t) => t.albumId === album.id);
+    if (firstTrack) {
+      getArtwork(firstTrack.id).then(setArtworkUri);
+    }
+  }, [album.id]);
+
   return (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [styles.card, { opacity: pressed ? 0.6 : 1, width: cardWidth }]}
     >
-      {/* Artwork placeholder */}
+      {/* Artwork */}
       <View
         style={[
           styles.artwork,
           { width: cardWidth, height: cardWidth, backgroundColor: colors.surfaceRaised },
         ]}
       >
-        <NText variant="h2" color="disabled" ndot>
-          {album.title.charAt(0).toUpperCase()}
-        </NText>
+        {artworkUri ? (
+          <Image source={{ uri: artworkUri }} style={{ width: '100%', height: '100%', borderRadius: 4 }} />
+        ) : (
+          <NText variant="h2" color="disabled" ndot>
+            {album.title.charAt(0).toUpperCase()}
+          </NText>
+        )}
       </View>
 
       <View style={styles.meta}>

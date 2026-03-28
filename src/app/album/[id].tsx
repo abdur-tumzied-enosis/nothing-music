@@ -1,6 +1,7 @@
 import { View, FlatList, StyleSheet, Pressable, Image } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import { useEffect, useState } from 'react';
 import { useTheme } from '@/hooks/useTheme';
 import { useLibraryStore } from '@/store/libraryStore';
 import { usePlayerStore } from '@/store/playerStore';
@@ -28,6 +29,17 @@ export default function AlbumDetailScreen() {
   const allTracks = useLibraryStore((s) => s.tracks);
   const currentTrack = usePlayerStore((s) => s.currentTrack);
   const play = usePlayerStore((s) => s.play);
+  const getArtwork = useLibraryStore((s) => s.getArtwork);
+
+  const [artworkUri, setArtworkUri] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!album) return;
+    const firstTrack = allTracks.find((t) => t.albumId === album.id);
+    if (firstTrack) {
+      getArtwork(firstTrack.id).then(setArtworkUri);
+    }
+  }, [album?.id]);
 
   if (!album) {
     return (
@@ -76,9 +88,9 @@ export default function AlbumDetailScreen() {
                 { backgroundColor: colors.surfaceRaised },
               ]}
             >
-              {album.artworkUri ? (
+              {artworkUri ? (
                 <Image
-                  source={{ uri: album.artworkUri }}
+                  source={{ uri: artworkUri }}
                   style={{ width: '100%', height: '100%', borderRadius: 8 }}
                 />
               ) : (

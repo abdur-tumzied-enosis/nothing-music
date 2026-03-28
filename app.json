@@ -2,7 +2,7 @@
   "expo": {
     "name": "nmusic",
     "slug": "nmusic",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/images/app_icon/play_store_512.png",
     "scheme": "nmusic",

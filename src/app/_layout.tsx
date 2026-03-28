@@ -1,15 +1,15 @@
-import { useEffect } from 'react';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import * as SplashScreen from 'expo-splash-screen';
-import { useFonts } from 'expo-font';
-import { Inter_400Regular, Inter_500Medium } from '@expo-google-fonts/inter';
-import TrackPlayer from 'react-native-track-player';
+import { useSleepTimer } from '@/hooks/useSleepTimer';
+import * as audioService from '@/services/audioService';
 import { PlaybackService } from '@/services/playbackService';
 import { useLibraryStore } from '@/store/libraryStore';
 import { useSettingsStore } from '@/store/settingsStore';
-import { useSleepTimer } from '@/hooks/useSleepTimer';
-import * as audioService from '@/services/audioService';
+import { Inter_400Regular, Inter_500Medium } from '@expo-google-fonts/inter';
+import { useFonts } from 'expo-font';
+import { Stack } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
+import TrackPlayer from 'react-native-track-player';
 
 // Module-level registration — runs synchronously before any component mounts.
 // Must happen here (not inside a component) so RNTP's headless task is
@@ -23,7 +23,7 @@ export default function RootLayout() {
   const [fontsLoaded] = useFonts({
     Inter_400Regular,
     Inter_500Medium,
-    // NDot57: require('@/assets/fonts/NDot57.ttf'), // uncomment when font file is added
+    NDot57: require('@/assets/fonts/NDot57.ttf'), // uncomment when font file is added
   });
 
   const loadPersistedLibrary = useLibraryStore((s) => s.loadPersistedLibrary);
