@@ -23,6 +23,8 @@ const SORT_OPTIONS: { label: string; value: SortOrder }[] = [
 
 const SLEEP_OPTIONS = [15, 30, 45, 60] as const;
 
+const APP_VERSION = '1.0.1';
+
 export default function SettingsScreen() {
   const { colors } = useTheme();
   const {
@@ -140,18 +142,18 @@ export default function SettingsScreen() {
       {/* ── About ── */}
       <SectionHeader label="About" />
       <View style={styles.aboutRow}>
-        <NText variant="body" color="textSecondary">
+        <NText variant="body" color="secondary">
           App Version
         </NText>
-        <NText variant="body" color="textPrimary">
-          1.0.0
+        <NText variant="body" color="primary">
+          {APP_VERSION}
         </NText>
       </View>
       <View style={styles.aboutRow}>
-        <NText variant="body" color="textSecondary">
+        <NText variant="body" color="secondary">
           Developed by
         </NText>
-        <NText variant="body" color="textPrimary">
+        <NText variant="body" color="primary">
           Tumzied
         </NText>
       </View>
@@ -265,5 +267,12 @@ const styles = StyleSheet.create({
   },
   bottomPad: {
     height: Spacing.s8,
+  },
+  aboutRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: Spacing.s3,
+    marginBottom: Spacing.s4,
   },
 });

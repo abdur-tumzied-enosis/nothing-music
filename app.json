@@ -2,16 +2,16 @@
   "expo": {
     "name": "nmusic",
     "slug": "nmusic",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/app_icon/play_store_512.png",
     "scheme": "nmusic",
     "userInterfaceStyle": "automatic",
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#000000",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#ffffff",
+        "foregroundImage": "./assets/images/app_icon/ic_launcher_foreground.png",
+        "monochromeImage": "./assets/images/app_icon/ic_launcher_monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
       "permissions": [
@@ -52,7 +52,7 @@
         {
           "backgroundColor": "#000000",
           "android": {
-            "image": "./assets/images/icon.png",
+            "image": "./assets/images/app_icon/play_store_512.png",
             "imageWidth": 76
           }
         }
